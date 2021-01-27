@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+
+  "name": "Multi Cursor",
+  "description": "",
+  "version": "0.0.1",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "/lib/keyboard.min.js",
+        "/node_modules/codemirror/lib/codemirror.js",
+        "/node_modules/codemirror/keymap/sublime.js", 
+        "/node_modules/codemirror/addon/search/searchcursor.js", 
+        
+        
+        "/src/content.js"
+      ],
+      "css": [
+        "/node_modules/codemirror/lib/codemirror.css",
+        "/src/content.css"
+      ],
+      "all_frames": true
+    }
+  ],
+  "browser_action": { "default_popup": "/src/popup.html" },
+  "permissions": ["*"],
+  "content_security_policy": "script-src 'self' object-src 'self'"
+}

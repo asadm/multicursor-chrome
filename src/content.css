@@ -1,0 +1,8 @@
+#editor_overlay_container{
+  position: absolute;
+}
+
+.CodeMirror {
+  font-family: inherit;
+  font-size: inherit;
+}
