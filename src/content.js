@@ -1,9 +1,14 @@
 
 var activeEditor;
 var activeEditorEl;
+var editorIsActive = false;
+var activeInputEl;
 function enableOverlay(e) {
+	if (editorIsActive) return;
+
 	var activeEl = document.activeElement;
 	if (activeEl.nodeName === "INPUT" || activeEl.nodeName === "TEXTAREA") {
+		editorIsActive = true;
 		addEditor(activeEl, activeEl.nodeName === "TEXTAREA");
 		e.preventDefault();
 		return false;
@@ -14,6 +19,7 @@ function addEditor(inputEl, isTextArea) {
 	var containerEl = document.createElement("div");
 	containerEl.id = "editor_overlay_container";
 	var coords = getCoords(inputEl);
+	activeInputEl = inputEl;
 	var computedStyle = getComputedStyle(inputEl, null);
 	containerEl.style.cssText = `
 		position: absolute;
@@ -22,11 +28,10 @@ function addEditor(inputEl, isTextArea) {
 		left: ${coords.left}px;
 		width: ${coords.right - coords.left}px;
 		height: ${coords.bottom - coords.top}px;
-		background: "cyan";
 		overflow: hidden;
 		font-family: ${computedStyle.fontFamily};
 		font-size: ${computedStyle.fontSize};
-		border: 1px solid #08a2a2;
+		border: 1px solid #cacab1;
 		border-radius: 3px;
 		padding: ${computedStyle.padding};
 	`
@@ -45,6 +50,7 @@ function addEditor(inputEl, isTextArea) {
 		activeEditor.on("beforeChange", (cm, changeObj) => {
 			var typedNewLine = changeObj.origin == '+input' && typeof changeObj.text == "object" && changeObj.text.join("") == "";
 			if (typedNewLine) {
+				removeEditor();
 				return changeObj.cancel();
 			}
 	
@@ -58,10 +64,7 @@ function addEditor(inputEl, isTextArea) {
 	}
 	
 	activeEditor.on("blur", () => {
-		inputEl.value = activeEditor.getValue();
-		activeEditorEl.remove();
-		activeEditorEl = null;
-		activeEditor = null;
+		removeEditor();
 	});
 
 	// if user has selected text
@@ -72,6 +75,16 @@ function addEditor(inputEl, isTextArea) {
 	activeEditor.execCommand('selectNextOccurrence');
 	activeEditor.focus();
 	activeEditorEl = containerEl;
+}
+function removeEditor(){
+	if (!editorIsActive) return;
+	editorIsActive = false;
+	activeInputEl.focus();
+	activeInputEl.value = activeEditor.getValue();
+	activeEditorEl.remove();
+	activeEditorEl = null;
+	activeEditor = null;
+	activeInputEl = null;
 }
 
 function getSelectionLineNumberAndColumnIndex(inputEl){
